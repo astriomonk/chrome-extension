@@ -1,0 +1,11 @@
+{
+  "manifest_version": 1,
+  "name": "KITTTTY-Youtube-Extension",
+  "version": "1.0.0",
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["Content.js"]
+    }
+  ]
+}
