@@ -10,22 +10,41 @@ const kittttyImages = [
   "https://placecats.com/louie/300/200"
 ];
 
-function replaceImages() {
-  const imgs = document.getElementsByTagName("img");
+function replaceImage(image) {
+  if (!(image instanceof HTMLImageElement)) return;
 
-  for (const image of imgs) {
-    if (image.dataset.kittttyReplaced === "true") continue;
+  const index = Math.floor(Math.random() * kittttyImages.length);
+  const catUrl = kittttyImages[index];
 
-    const index = Math.floor(Math.random() * kittttyImages.length);
-    image.src = kittttyImages[index];
-    image.dataset.kittttyReplaced = "true";
+  // YouTube commonly uses srcset, so clear it or it can override src.
+  image.removeAttribute("srcset");
+  image.removeAttribute("sizes");
+  image.src = catUrl;
+}
+
+function replaceImages(root = document) {
+  if (root instanceof HTMLImageElement) {
+    replaceImage(root);
+  }
+
+  if (root.querySelectorAll) {
+    root.querySelectorAll("img").forEach(replaceImage);
   }
 }
 
 replaceImages();
 
-// YouTube loads and replaces images dynamically, so keep watching for new ones.
-const observer = new MutationObserver(() => replaceImages());
+// YouTube creates thumbnails dynamically while you scroll and navigate.
+const observer = new MutationObserver((mutations) => {
+  for (const mutation of mutations) {
+    for (const node of mutation.addedNodes) {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        replaceImages(node);
+      }
+    }
+  }
+});
+
 observer.observe(document.documentElement, {
   childList: true,
   subtree: true
