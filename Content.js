@@ -10,36 +10,57 @@ const kittttyImages = [
   "https://placecats.com/louie/300/200"
 ];
 
-function replaceImage(image) {
-  if (!(image instanceof HTMLImageElement)) return;
+const catUrls = new Set(kittttyImages);
 
-  const index = Math.floor(Math.random() * kittttyImages.length);
-  const catUrl = kittttyImages[index];
+function isImage(element) {
+  return element instanceof HTMLImageElement;
+}
 
-  // YouTube commonly uses srcset, so clear it or it can override src.
+function giveCatImage(image) {
+  if (!isImage(image)) return;
+
+  let catUrl = image.dataset.kittttyCatUrl;
+
+  if (!catUrl || !catUrls.has(catUrl)) {
+    catUrl = kittttyImages[Math.floor(Math.random() * kittttyImages.length)];
+    image.dataset.kittttyCatUrl = catUrl;
+  }
+
+  // YouTube can restore src/srcset after the page loads.
   image.removeAttribute("srcset");
   image.removeAttribute("sizes");
-  image.src = catUrl;
+  image.removeAttribute("data-src");
+  image.removeAttribute("data-lazy-src");
+
+  if (image.src !== catUrl) {
+    image.src = catUrl;
+  }
 }
 
-function replaceImages(root = document) {
-  if (root instanceof HTMLImageElement) {
-    replaceImage(root);
-  }
-
+function scan(root = document) {
+  if (isImage(root)) giveCatImage(root);
   if (root.querySelectorAll) {
-    root.querySelectorAll("img").forEach(replaceImage);
+    root.querySelectorAll("img").forEach(giveCatImage);
   }
 }
 
-replaceImages();
+// Initial scan.
+scan();
 
-// YouTube creates thumbnails dynamically while you scroll and navigate.
+// YouTube constantly creates and changes thumbnail elements.
 const observer = new MutationObserver((mutations) => {
   for (const mutation of mutations) {
-    for (const node of mutation.addedNodes) {
-      if (node.nodeType === Node.ELEMENT_NODE) {
-        replaceImages(node);
+    if (mutation.type === "childList") {
+      for (const node of mutation.addedNodes) {
+        if (node.nodeType === Node.ELEMENT_NODE) scan(node);
+      }
+    }
+
+    if (mutation.type === "attributes" && isImage(mutation.target)) {
+      const image = mutation.target;
+      const catUrl = image.dataset.kittttyCatUrl;
+      if (catUrl && image.src !== catUrl) {
+        giveCatImage(image);
       }
     }
   }
@@ -47,5 +68,10 @@ const observer = new MutationObserver((mutations) => {
 
 observer.observe(document.documentElement, {
   childList: true,
-  subtree: true
+  subtree: true,
+  attributes: true,
+  attributeFilter: ["src", "srcset", "sizes", "data-src", "data-lazy-src"]
 });
+
+// Extra protection for YouTube's SPA navigation and thumbnail updates.
+setInterval(() => scan(), 1000);
