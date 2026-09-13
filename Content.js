@@ -7,8 +7,8 @@ const kittttyImages = [
   "https://placecats.com/neo_2/300/200",
   "https://placecats.com/bella/300/200",
   "https://placecats.com/poppy/300/200",
-  "https://placecats.com/louie/300/200"
-  "https://i.ibb.co/ccfqvdXs/1000004135.jpg",
+  "https://placecats.com/louie/300/200",
+  "https://i.ibb.co/ccfqvdXs/1000004135.jpg"
 ];
 
 const catUrls = new Set(kittttyImages);
