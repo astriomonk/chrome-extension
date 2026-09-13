@@ -8,7 +8,6 @@ const kittttyImages = [
   "https://placecats.com/bella/300/200",
   "https://placecats.com/poppy/300/200",
   "https://placecats.com/louie/300/200"
-  "https://placedog.net/640/360",
   "https://random.dog/6824eff1-85f8-4c16-b3ec-93a82b4f554d.jpeg",
   "https://random.dog/99922971-447f-4785-b5fe-db96f9938994.jpg",
   "https://random.dog/1f3a23fe-27b3-413c-b1bd-3cd18e2ef970.jpg",
